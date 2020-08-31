@@ -47,9 +47,6 @@ Skips force restores
 .PARAMETER skipNoOpRestores
 Skips no-op restore.
 
-.PARAMETER staticGraphRestore
-Uses static graph restore if applicable for the client.
-
 .EXAMPLE
 .\RunPerformanceTests.ps1 -nugetClientFilePath "C:\Program Files\dotnet\dotnet.exe" -solutionFilePath F:\NuGet.Client\NuGet.sln -resultsFilePath results.csv
 #>
@@ -68,8 +65,7 @@ Param(
     [switch] $skipCleanRestores,
     [switch] $skipColdRestores,
     [switch] $skipForceRestores,
-    [switch] $skipNoOpRestores,
-    [switch] $staticGraphRestore
+    [switch] $skipNoOpRestores
 )
 
 . "$PSScriptRoot\PerformanceTestUtilities.ps1"
@@ -183,13 +179,13 @@ Try
     {
         Log "Running 1x warmup restore"
         $enabledSwitches = @("cleanGlobalPackagesFolder", "cleanHttpCache", "cleanPluginsCache", "killMSBuildAndDotnetExeProcess")
+        If (!$skipForceRestores)
+        {
+            $enabledSwitches += "force"
+        }
         If ($isPackagesConfig)
         {
             $enabledSwitches += "isPackagesConfig"
-        }
-        If ($staticGraphRestore)
-        {
-            $enabledSwitches += "staticGraphRestore"
         }
         $arguments = CreateNugetClientArguments $solutionFilePath $nugetClientFilePath $resultsFilePath $logsFolderPath $solutionName $testRunId "warmup" -enabledSwitches $enabledSwitches
         RunRestore @arguments
@@ -199,13 +195,13 @@ Try
     {
         Log "Running $($iterationCount)x clean restores"
         $enabledSwitches = @("cleanGlobalPackagesFolder", "cleanHttpCache", "cleanPluginsCache", "killMSBuildAndDotnetExeProcess")
+        If (!$skipForceRestores)
+        {
+            $enabledSwitches += "force"
+        }
         If ($isPackagesConfig)
         {
             $enabledSwitches += "isPackagesConfig"
-        }
-        If ($staticGraphRestore)
-        {
-            $enabledSwitches += "staticGraphRestore"
         }
         $arguments = CreateNugetClientArguments $solutionFilePath $nugetClientFilePath $resultsFilePath $logsFolderPath $solutionName $testRunId "arctic" -enabledSwitches $enabledSwitches
         1..$iterationCount | % { RunRestore @arguments }
@@ -215,13 +211,13 @@ Try
     {
         Log "Running $($iterationCount)x without a global packages folder"
         $enabledSwitches = @("cleanGlobalPackagesFolder", "killMSBuildAndDotnetExeProcess")
+        If (!$skipForceRestores)
+        {
+            $enabledSwitches += "force"
+        }
         If ($isPackagesConfig)
         {
             $enabledSwitches += "isPackagesConfig"
-        }
-        If ($staticGraphRestore)
-        {
-            $enabledSwitches += "staticGraphRestore"
         }
         $arguments = CreateNugetClientArguments $solutionFilePath $nugetClientFilePath $resultsFilePath $logsFolderPath $solutionName $testRunId "cold" -enabledSwitches $enabledSwitches
         1..$iterationCount | % { RunRestore @arguments }
@@ -230,26 +226,14 @@ Try
     If (!$skipForceRestores)
     {
         Log "Running $($iterationCount)x force restores"
-        $enabledSwitches = @("force")
-        If ($staticGraphRestore)
-        {
-            $enabledSwitches += "staticGraphRestore"
-        }
-        $arguments = CreateNugetClientArguments $solutionFilePath $nugetClientFilePath $resultsFilePath $logsFolderPath $solutionName $testRunId "force" -enabledSwitches $enabledSwitches
+        $arguments = CreateNugetClientArguments $solutionFilePath $nugetClientFilePath $resultsFilePath $logsFolderPath $solutionName $testRunId "force" -enabledSwitches @("force")
         1..$iterationCount | % { RunRestore @arguments }
     }
 
     If (!$skipNoOpRestores)
     {
         Log "Running $($iterationCount)x no-op restores"
-        If ($staticGraphRestore)
-        {
-            $arguments = CreateNugetClientArguments $solutionFilePath $nugetClientFilePath $resultsFilePath $logsFolderPath $solutionName $testRunId "noop" -enabledSwitches @("staticGraphRestore")
-        }
-        Else
-        {
-            $arguments = CreateNugetClientArguments $solutionFilePath $nugetClientFilePath $resultsFilePath $logsFolderPath $solutionName $testRunId "noop"
-        }
+        $arguments = CreateNugetClientArguments $solutionFilePath $nugetClientFilePath $resultsFilePath $logsFolderPath $solutionName $testRunId "noop"
         1..$iterationCount | % { RunRestore @arguments }
     }
 

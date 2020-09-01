@@ -21,6 +21,7 @@ using NuGet.ProjectModel;
 using NuGet.Shared;
 using NuGet.VisualStudio;
 using NuGet.VisualStudio.Telemetry;
+using Test.Utility;
 using IAsyncServiceProvider = Microsoft.VisualStudio.Shell.IAsyncServiceProvider;
 
 namespace NuGet.SolutionRestoreManager
@@ -169,8 +170,8 @@ namespace NuGet.SolutionRestoreManager
                     var dgSpecOutputPath = GetProjectOutputPath(projectDirectory, projectIntermediatePath);
                     dgSpec = CreateMinimalDependencyGraphSpec(projectUniqueName, dgSpecOutputPath);
                 }
-
                 _projectSystemCache.AddProjectRestoreInfo(projectNames, dgSpec, nominationErrors);
+                NuGetFileLogger.DefaultInstance.Write($"VSSolutionRestoreService - add a project to project-system cache {projectUniqueName}");
 
                 // returned task completes when scheduled restore operation completes.
                 var restoreTask = _restoreWorker.ScheduleRestoreAsync(

@@ -7,7 +7,7 @@ using System.IO;
 using System.Threading;
 using NuGet.Common;
 
-namespace NuGet.SolutionRestoreManager.Logger
+namespace Test.Utility
 {
     internal sealed class NuGetFileLogger : IDisposable
     {

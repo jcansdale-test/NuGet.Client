@@ -15,9 +15,9 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Threading;
 using NuGet.PackageManagement.VisualStudio;
 using NuGet.ProjectManagement.Projects;
-using NuGet.SolutionRestoreManager.Logger;
 using NuGet.VisualStudio;
 using NuGet.VisualStudio.Common;
+using Test.Utility;
 using IAsyncServiceProvider = Microsoft.VisualStudio.Shell.IAsyncServiceProvider;
 using Task = System.Threading.Tasks.Task;
 
@@ -309,7 +309,7 @@ namespace NuGet.SolutionRestoreManager
         public async Task<bool> ScheduleRestoreAsync(
             SolutionRestoreRequest request, CancellationToken token)
         {
-            //Logger: A solution restore request was received
+            NuGetFileLogger.DefaultInstance.Write($"A solution restore request was received for Source: {request.RestoreSource}, Project: {request.OriginalProject}");
 
             if (token.IsCancellationRequested)
             {
@@ -542,7 +542,7 @@ namespace NuGet.SolutionRestoreManager
                                     await Task.Delay(_idleTimeoutMs, token);
                                 }
                             }
-                            else 
+                            else
                             {
                                 NuGetFileLogger.DefaultInstance.Write($"StartBackgroundJobRunnerAsync - Pulled a request for {next.OriginalProject}, queue count: {_pendingRequests.Value.Count}");
                                 // Upgrade request if necessary

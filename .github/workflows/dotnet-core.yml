@@ -3,6 +3,7 @@ on:
 
 env:
   dotnet-version: 5.0.100-preview.2.20176.6
+  source-url: "https://nuget.pkg.github.com/${{github.repository_owner}}/index.json"
 
 jobs:
   build:
@@ -28,7 +29,13 @@ jobs:
 
   publish:
     needs: build
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        try: [0]
+    
+    runs-on: ${{ matrix.os }}
 
     steps:      
     - uses: actions/download-artifact@v2
@@ -40,5 +47,16 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{ env.dotnet-version }}
+        source-url: ${{ env.source-url }}
+      env:
+        NUGET_AUTH_TOKEN: '%NUGET_AUTH_TOKEN%'
 
-    - run: dotnet NuGet.CommandLine.XPlat.dll
+    - run: |
+        dotnet new console
+        dotnet pack -p:RepositoryUrl=${{ github.server_url }}/${{ github.repository }} -p:Version=1.0.0-g${{ github.sha }}-${{ strategy.job-index }}
+
+    - name: Publish package
+      shell: bash
+      run: dotnet NuGet.CommandLine.XPlat.dll push bin/Debug/*.nupkg -Source ${{ env.source-url }}
+      env:
+        NUGET_AUTH_TOKEN: "${{ github.token }}"

@@ -1,6 +1,9 @@
 on:
   push:
 
+env:
+  dotnet-version: 5.0.100-preview.2.20176.6
+
 jobs:
   build:
 
@@ -14,7 +17,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.100-preview.2.20176.6
+        dotnet-version: ${{ env.dotnet-version }}
 
     - run: .\build.ps1 -SkipUnitTest
 
@@ -32,5 +35,10 @@ jobs:
       with:
         name: nuget
         path: ${{ github.workspace }}
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.dotnet-version }}
 
     - run: dotnet NuGet.CommandLine.XPlat.dll

@@ -18,9 +18,19 @@ jobs:
 
     - run: .\build.ps1 -SkipUnitTest
 
-    - run: dotnet artifacts\NuGet.CommandLine.XPlat\16.0\bin\Debug\netcoreapp5.0\NuGet.CommandLine.XPlat.dll
-
     - uses: actions/upload-artifact@v2
       with:
         name: nuget
         path: ${{ github.workspace }}/artifacts/NuGet.CommandLine.XPlat/16.0/bin/Debug/netcoreapp5.0/**/*
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:      
+    - uses: actions/download-artifact@v2
+      with:
+        name: nuget
+        path: ${{ github.workspace }}
+
+    - run: dotnet NuGet.CommandLine.XPlat.dll

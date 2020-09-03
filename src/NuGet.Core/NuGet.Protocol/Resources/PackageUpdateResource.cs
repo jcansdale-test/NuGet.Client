@@ -551,7 +551,7 @@ namespace NuGet.Protocol.Core.Types
 
             // Send the data in chunks so that it can be canceled if auth fails.
             // Otherwise the whole package needs to be sent to the server before the PUT fails.
-            request.Headers.TransferEncodingChunked = false;
+            request.Headers.TransferEncodingChunked = true;
 
             if (hasApiKey)
             {

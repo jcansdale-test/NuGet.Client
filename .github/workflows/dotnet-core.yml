@@ -57,7 +57,9 @@ jobs:
 
     - run: |
         dotnet new console
-        dotnet pack -p:RepositoryUrl=${{ github.server_url }}/${{ github.repository }} -p:Version=1.0.0-g${{ github.sha }}-${{ strategy.job-index }}
+        dotnet pack -p:RepositoryUrl=${{ github.server_url }}/${{ github.repository }} -p:Version=${{ env.version }}
+      env:
+        version: 1.0.0-g${{ github.sha }}-${{ strategy.job-index }}-$(date +%F-%H%M%S)
 
     - name: Publish package
       shell: bash

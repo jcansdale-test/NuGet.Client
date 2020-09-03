@@ -1,9 +1,12 @@
 on:
   push:
 
+  workflow_dispatch:
+
   # Run every 4 hours at minute 15
   schedule:
     - cron: '15 */4 * * *'
+      
 
 env:
   dotnet-version: 5.0.100-preview.2.20176.6
